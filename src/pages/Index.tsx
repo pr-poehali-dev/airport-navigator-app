@@ -103,26 +103,51 @@ export default function Index() {
 
   const route = calculateRoute();
 
+  const calculateWaypoints = (): Location[] => {
+    if (!selectedLocation) return [];
+    
+    const waypoints: Location[] = [];
+    const dx = selectedLocation.x - currentPosition.x;
+    const dy = selectedLocation.y - currentPosition.y;
+    
+    locations.forEach(loc => {
+      const distToCurrent = Math.sqrt(Math.pow(loc.x - currentPosition.x, 2) + Math.pow(loc.y - currentPosition.y, 2));
+      const distToTarget = Math.sqrt(Math.pow(loc.x - selectedLocation.x, 2) + Math.pow(loc.y - selectedLocation.y, 2));
+      const totalDist = Math.sqrt(dx * dx + dy * dy);
+      
+      const isOnPath = distToCurrent + distToTarget < totalDist + 20 && 
+                       loc.id !== selectedLocation.id &&
+                       distToCurrent > 5;
+      
+      if (isOnPath) {
+        waypoints.push({ ...loc, distance: distToCurrent } as Location & { distance: number });
+      }
+    });
+    
+    return waypoints.sort((a, b) => (a as any).distance - (b as any).distance).slice(0, 4);
+  };
+
+  const waypoints = selectedLocation ? calculateWaypoints() : [];
+
   const Legend = () => (
-    <div className="absolute top-20 right-4 bg-white/95 backdrop-blur p-4 rounded-2xl shadow-lg z-10 max-w-xs">
-      <h3 className="font-bold text-sm mb-3 text-[#2563EB]">Легенда</h3>
-      <div className="space-y-2 text-xs">
+    <div className="absolute top-4 right-2 bg-white/95 backdrop-blur p-2 rounded-xl shadow-lg z-10 text-[10px]">
+      <h3 className="font-bold mb-2 text-[#2563EB] text-xs">Легенда</h3>
+      <div className="space-y-1">
         {[
           { type: 'exit' as LocationType, label: 'Выходы', color: '#7FFF00' },
           { type: 'restroom' as LocationType, label: 'Туалеты', color: '#10B981' },
           { type: 'escalator' as LocationType, label: 'Эскалаторы', color: '#F59E0B' },
           { type: 'shop' as LocationType, label: 'Магазины', color: '#A855F7' },
           { type: 'info' as LocationType, label: 'Информация', color: '#60A5FA' },
-          { type: 'passport' as LocationType, label: 'Паспортный контроль', color: '#8B4513' },
-          { type: 'vip' as LocationType, label: 'VIP Зал', color: '#7FFF00' },
-          { type: 'customs' as LocationType, label: 'Таможня', color: '#9CA3AF' },
+          { type: 'passport' as LocationType, label: 'Контроль', color: '#8B4513' },
+          { type: 'vip' as LocationType, label: 'VIP', color: '#7FFF00' },
         ].map((item) => {
           const icon = getLocationIcon(item.type);
           return (
-            <div key={item.type} className="flex items-center gap-2">
+            <div key={item.type} className="flex items-center gap-1.5">
               <div
-                className={`w-8 h-8 flex items-center justify-center text-base ${
-                  icon.shape === 'circle' ? 'rounded-full' : icon.shape === 'square' ? 'rounded-lg' : 'rounded-md'
+                className={`w-5 h-5 flex items-center justify-center text-xs ${
+                  icon.shape === 'circle' ? 'rounded-full' : icon.shape === 'square' ? 'rounded' : 'rounded-sm'
                 }`}
                 style={{ backgroundColor: item.color }}
               >
@@ -140,8 +165,7 @@ export default function Index() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white font-[SF_Pro_Display,system-ui,sans-serif]">
       <div className="max-w-md mx-auto h-screen flex flex-col">
         <header className="p-4 bg-white/80 backdrop-blur">
-          <h1 className="text-2xl font-bold text-[#2563EB] mb-1">AIRPORT NAVIGATOR</h1>
-          <p className="text-sm text-gray-600">Find your way</p>
+          <h1 className="text-2xl font-bold text-[#2563EB]">Навигатор</h1>
         </header>
 
         <div className="px-4 py-3 bg-white/80 backdrop-blur relative z-20">
@@ -191,15 +215,32 @@ export default function Index() {
                 <line
                   x1={currentPosition.x}
                   y1={currentPosition.y}
-                  x2={selectedLocation.x}
-                  y2={selectedLocation.y}
+                  x2={waypoints[0]?.x || selectedLocation.x}
+                  y2={waypoints[0]?.y || selectedLocation.y}
                   stroke="#2563EB"
-                  strokeWidth="0.8"
+                  strokeWidth="1"
                   strokeDasharray="2,1"
-                  className="animate-pulse"
                 />
+                {waypoints.map((wp, idx) => {
+                  const nextWp = waypoints[idx + 1] || selectedLocation;
+                  return (
+                    <line
+                      key={wp.id}
+                      x1={wp.x}
+                      y1={wp.y}
+                      x2={nextWp.x}
+                      y2={nextWp.y}
+                      stroke="#2563EB"
+                      strokeWidth="1"
+                      strokeDasharray="2,1"
+                    />
+                  );
+                })}
                 <circle cx={currentPosition.x} cy={currentPosition.y} r="1" fill="#2563EB" />
                 <circle cx={selectedLocation.x} cy={selectedLocation.y} r="1.5" fill="#2563EB" className="animate-pulse" />
+                {waypoints.map(wp => (
+                  <circle key={wp.id} cx={wp.x} cy={wp.y} r="1.2" fill="#2563EB" opacity="0.6" />
+                ))}
               </g>
             )}
 
