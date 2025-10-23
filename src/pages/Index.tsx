@@ -163,7 +163,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white font-[SF_Pro_Display,system-ui,sans-serif]">
-      <div className="max-w-md mx-auto h-screen flex flex-col">
+      <div className="max-w-md mx-auto h-screen flex flex-col relative">
         <header className="p-4 bg-white/80 backdrop-blur">
           <h1 className="text-2xl font-bold text-[#2563EB]">Навигатор</h1>
         </header>
@@ -202,7 +202,7 @@ export default function Index() {
           )}
         </div>
 
-        <div className="flex-1 relative overflow-hidden bg-gray-100">
+        <div className={`relative overflow-hidden bg-gray-100 ${selectedLocation ? 'h-[45vh]' : 'flex-1'}`}>
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
             <rect x="0" y="0" width="100" height="100" fill="#F3F4F6" />
             
