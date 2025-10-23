@@ -130,9 +130,9 @@ export default function Index() {
   const waypoints = selectedLocation ? calculateWaypoints() : [];
 
   const Legend = () => (
-    <div className="absolute top-4 right-2 bg-white/95 backdrop-blur p-2 rounded-xl shadow-lg z-10 text-[10px]">
+    <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur p-2 rounded-xl shadow-lg z-10 text-[10px]">
       <h3 className="font-bold mb-2 text-[#2563EB] text-xs">Легенда</h3>
-      <div className="space-y-1">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
         {[
           { type: 'exit' as LocationType, label: 'Выходы', color: '#7FFF00' },
           { type: 'restroom' as LocationType, label: 'Туалеты', color: '#10B981' },
@@ -144,16 +144,16 @@ export default function Index() {
         ].map((item) => {
           const icon = getLocationIcon(item.type);
           return (
-            <div key={item.type} className="flex items-center gap-1.5">
+            <div key={item.type} className="flex items-center gap-1">
               <div
-                className={`w-5 h-5 flex items-center justify-center text-xs ${
+                className={`w-4 h-4 flex items-center justify-center text-[8px] ${
                   icon.shape === 'circle' ? 'rounded-full' : icon.shape === 'square' ? 'rounded' : 'rounded-sm'
                 }`}
                 style={{ backgroundColor: item.color }}
               >
                 {icon.emoji}
               </div>
-              <span className="text-gray-700">{item.label}</span>
+              <span className="text-gray-700 text-[9px]">{item.label}</span>
             </div>
           );
         })}
@@ -278,21 +278,9 @@ export default function Index() {
         </div>
 
         {selectedLocation && route && (
-          <Card className="bg-white rounded-t-3xl shadow-2xl p-6 animate-slide-in-right max-h-[40vh] overflow-y-auto">
+          <Card className="bg-white rounded-t-3xl shadow-2xl p-6 animate-slide-in-right max-h-[45vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedLocation.name}</h2>
-                <div className="flex gap-4 mt-2">
-                  <div className="flex items-center gap-2">
-                    <Icon name="Clock" size={16} className="text-[#2563EB]" />
-                    <span className="text-sm text-gray-600">~{route.time} минут</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Icon name="Navigation" size={16} className="text-[#2563EB]" />
-                    <span className="text-sm text-gray-600">{route.distance} м</span>
-                  </div>
-                </div>
-              </div>
+              <h2 className="text-xl font-bold text-gray-900">{selectedLocation.name}</h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -301,6 +289,25 @@ export default function Index() {
               >
                 <Icon name="X" size={20} />
               </Button>
+            </div>
+
+            <div className="bg-blue-50 rounded-2xl p-4 mb-4">
+              <div className="flex gap-6 justify-center">
+                <div className="flex items-center gap-2">
+                  <Icon name="Clock" size={20} className="text-[#2563EB]" />
+                  <div>
+                    <div className="text-2xl font-bold text-[#2563EB]">~{route.time}</div>
+                    <div className="text-xs text-gray-600">минут</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Icon name="Navigation" size={20} className="text-[#2563EB]" />
+                  <div>
+                    <div className="text-2xl font-bold text-[#2563EB]">{route.distance}</div>
+                    <div className="text-xs text-gray-600">метров</div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-3">
